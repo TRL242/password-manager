@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import string
+import json
 
 
 
@@ -29,7 +30,7 @@ def gen_password():
     random.shuffle(s)
     #print(s)
     gen_pass = ("".join(s[0:pass_len]))
-    print(gen_pass)
+    #print(gen_pass)
     password_entry.insert(0, gen_pass)
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
@@ -37,19 +38,35 @@ def add_password():
     website = website_entry.get()
     email = email_entry.get()
     password = password_entry.get()
+    new_data = {
+        website: {
+            "email": email,
+            "password": password,
+        }
+    }
 
     if len(website) == 0 or len(password) == 0:
         messagebox.showinfo(title="Oops", message="Please make sure you have filled the feilds")
-
     else:
-        is_ok = messagebox.askokcancel(title=website, message=f"These are the details entered: \nEmail: {email}"
-                                                              f"\nPassword: {password} \n Is it ok to save?")
+        try:
+            with open("data.json", "r") as data_file:
+                # Reading old data
+                data = json.load(data_file)
+        except FileNotFoundError:
+            with open("data.json", "w") as data_file:
+                #save data if no data found
+                json.dump(new_data, data_file, indent=4)
+        else:
+            # updating old data with new data
+            data.update(new_data)
 
-        if is_ok:
-            with open("data.text", "a") as data_file:
-                data_file.write(f"{website} | {email} | {password}\n")
-                website_entry.delete(0, END)
-                password_entry.delete(0, END)
+            with open("data.json", "w") as data_file:
+                #save updated data
+                json.dump(data, data_file, indent=4)
+
+        finally:
+            website_entry.delete(0, END)
+            password_entry.delete(0, END)
 
 
 
@@ -74,7 +91,7 @@ password_label = Label(text="Password")
 password_label.grid(row=3, column=0)
 
 #Entries
-website_entry = Entry(width=35)
+website_entry = Entry(width=21)
 website_entry.grid(row=1, column=1, columnspan=2)
 website_entry.focus()
 
