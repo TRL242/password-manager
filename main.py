@@ -68,7 +68,21 @@ def add_password():
             website_entry.delete(0, END)
             password_entry.delete(0, END)
 
-
+# ---------------------------- FIND PASSWORD ------------------------------- #
+def find_password():
+    website = website_entry.get()
+    try:
+        with open("data.json") as data_file:
+            data = json.load(data_file)
+    except FileNotFoundError:
+        messagebox.showinfo(title="Eror", message="No Data Found.")
+    else:
+        if website in data:
+            email = data[website]["email"]
+            password = data[website]["password"]
+            messagebox.showinfo(title=website, message=f"Email: {email}\nPassword: {password}")
+        else:
+            messagebox.showinfo(title="Error", message=f"No details for {website} exist.")
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -104,7 +118,7 @@ password_entry.grid(row=3, column=1)
 
 #Button
 
-search_button = Button(text="Search", width=14 , command=gen_password)
+search_button = Button(text="Search", width=14, command=find_password)
 search_button.grid(row=1, column=2)
 
 generate_button = Button(text="Generate Password", command=gen_password)
